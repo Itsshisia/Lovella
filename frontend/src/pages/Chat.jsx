@@ -2,40 +2,22 @@ import React, { useState, useRef, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
 const Chat = () => {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: "Good morning my love! 💕 Waking up next to you is the best part of every day.",
-      type: "love",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      sender: "Alex"
-    },
-    {
-      id: 2,
-      text: "Remember our first date at that little Italian place? I was so nervous but you made me feel so comfortable ❤️",
-      type: "memory",
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      sender: "Taylor"
-    },
-    {
-      id: 3,
-      text: "I can't wait for our trip to Japan next year! Cherry blossoms, amazing food, and exploring together 🌸",
-      type: "future",
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      sender: "Alex"
-    },
-    {
-      id: 4,
-      text: "Just thinking about how lucky I am to have you in my life. You make everything better ✨",
-      type: "love",
-      timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      sender: "Taylor"
-    }
-  ])
-
+  const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const [messageType, setMessageType] = useState('love')
   const messagesEndRef = useRef(null)
+
+  // Get user data from localStorage
+  const getUserData = () => {
+    try {
+      const userData = localStorage.getItem('lovella_user')
+      return userData ? JSON.parse(userData) : null
+    } catch (error) {
+      return null
+    }
+  }
+
+  const user = getUserData()
 
   const messageTypes = {
     love: { emoji: '❤️', label: 'Love Note', color: 'from-romantic-pink to-romantic-rose', bgColor: 'bg-pink-50', borderColor: 'border-pink-200' },
@@ -55,12 +37,6 @@ const Chat = () => {
     { text: "Our inside jokes still make me laugh! 😂", type: "memory" }
   ]
 
-  // Mock user data
-  const user = {
-    name: 'Alex',
-    partnerName: 'Taylor'
-  }
-
   useEffect(() => {
     scrollToBottom()
   }, [messages])
@@ -76,8 +52,13 @@ const Chat = () => {
       return
     }
 
+    if (!user) {
+      toast.error('Please login to send messages')
+      return
+    }
+
     const message = {
-      id: messages.length + 1,
+      id: Date.now(),
       text: newMessage,
       type: messageType,
       timestamp: new Date().toISOString(),
@@ -87,26 +68,28 @@ const Chat = () => {
     setMessages([message, ...messages])
     setNewMessage('')
     
-    // Auto-reply simulation
-    setTimeout(() => {
-      const replies = {
-        love: ["I love you too! 💖", "You're my everything! ❤️", "My heart is yours forever 💕"],
-        memory: ["That was such a special time! 🌟", "I'll cherish that memory forever ✨", "Remembering that makes me smile! 😊"],
-        future: ["I can't wait either! 🚀", "Our future is so bright! 🌈", "Dreaming with you is my favorite! 💫"],
-        general: ["Thinking of you too! 💭", "You're amazing! 🌟", "So grateful for you! 🙏"]
-      }
+    // Auto-reply simulation (only if it's the first message)
+    if (messages.length === 0) {
+      setTimeout(() => {
+        const replies = {
+          love: ["I love you too! 💖", "You're my everything! ❤️", "My heart is yours forever 💕"],
+          memory: ["That was such a special time! 🌟", "I'll cherish that memory forever ✨", "Remembering that makes me smile! 😊"],
+          future: ["I can't wait either! 🚀", "Our future is so bright! 🌈", "Dreaming with you is my favorite! 💫"],
+          general: ["Thinking of you too! 💭", "You're amazing! 🌟", "So grateful for you! 🙏"]
+        }
 
-      const autoReply = {
-        id: messages.length + 2,
-        text: replies[messageType][Math.floor(Math.random() * replies[messageType].length)],
-        type: messageType,
-        timestamp: new Date(Date.now() + 2000).toISOString(),
-        sender: user.partnerName
-      }
+        const autoReply = {
+          id: Date.now() + 1,
+          text: replies[messageType][Math.floor(Math.random() * replies[messageType].length)],
+          type: messageType,
+          timestamp: new Date(Date.now() + 2000).toISOString(),
+          sender: user.partnerName
+        }
 
-      setMessages(prev => [autoReply, ...prev])
-      toast('💌 Love message received!', { icon: '❤️' })
-    }, 2000)
+        setMessages(prev => [autoReply, ...prev])
+        toast('💌 Love message received!', { icon: '❤️' })
+      }, 2000)
+    }
 
     toast.success('Love message sent! 💕')
   }
@@ -148,6 +131,22 @@ const Chat = () => {
   }
 
   const groupedMessages = getGroupedMessages()
+  const hasMessages = messages.length > 0
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-romantic-cream flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">💕</div>
+          <h1 className="font-dancing text-4xl text-romantic-pink mb-4">Welcome to Lovella</h1>
+          <p className="text-gray-600 mb-6">Please register or login to continue</p>
+          <Link to="/register" className="btn-primary">
+            Start Your Love Story
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-romantic-cream py-8">
@@ -197,34 +196,36 @@ const Chat = () => {
                 ))}
               </div>
 
-              {/* Chat Stats */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h4 className="font-semibold text-gray-800 mb-3">Chat Stats</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Messages:</span>
-                    <span className="font-semibold text-romantic-pink">{messages.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Love Notes:</span>
-                    <span className="font-semibold text-romantic-pink">
-                      {messages.filter(m => m.type === 'love').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Memories Shared:</span>
-                    <span className="font-semibold text-romantic-gold">
-                      {messages.filter(m => m.type === 'memory').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Future Dreams:</span>
-                    <span className="font-semibold text-blue-500">
-                      {messages.filter(m => m.type === 'future').length}
-                    </span>
+              {/* Chat Stats - Only show when there are messages */}
+              {hasMessages && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <h4 className="font-semibold text-gray-800 mb-3">Chat Stats</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Total Messages:</span>
+                      <span className="font-semibold text-romantic-pink">{messages.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Love Notes:</span>
+                      <span className="font-semibold text-romantic-pink">
+                        {messages.filter(m => m.type === 'love').length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Memories Shared:</span>
+                      <span className="font-semibold text-romantic-gold">
+                        {messages.filter(m => m.type === 'memory').length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Future Dreams:</span>
+                      <span className="font-semibold text-blue-500">
+                        {messages.filter(m => m.type === 'future').length}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -233,73 +234,102 @@ const Chat = () => {
             <div className="card-romantic h-[600px] flex flex-col">
               {/* Messages Container */}
               <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                {Object.entries(groupedMessages).map(([date, dateMessages]) => (
-                  <div key={date}>
-                    {/* Date Separator */}
-                    <div className="text-center mb-4">
-                      <span className="text-xs text-gray-400 bg-romantic-cream px-3 py-1 rounded-full border">
-                        {formatDate(dateMessages[0].timestamp)}
-                      </span>
+                {!hasMessages ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="text-6xl mb-4">💌</div>
+                    <h3 className="font-playfair text-2xl text-gray-600 mb-2">
+                      Your conversation begins here
+                    </h3>
+                    <p className="text-gray-500 max-w-md mx-auto mb-6">
+                      Send your first love note, share a memory, or dream about your future together.
+                    </p>
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-400">Try one of these:</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {quickMessages.slice(0, 3).map((msg, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setNewMessage(msg.text)
+                              setMessageType(msg.type)
+                            }}
+                            className="px-3 py-2 bg-pink-50 text-romantic-pink rounded-lg text-sm hover:bg-pink-100 transition-colors"
+                          >
+                            {msg.text.slice(0, 20)}...
+                          </button>
+                        ))}
+                      </div>
                     </div>
+                  </div>
+                ) : (
+                  Object.entries(groupedMessages).map(([date, dateMessages]) => (
+                    <div key={date}>
+                      {/* Date Separator */}
+                      <div className="text-center mb-4">
+                        <span className="text-xs text-gray-400 bg-romantic-cream px-3 py-1 rounded-full border">
+                          {formatDate(dateMessages[0].timestamp)}
+                        </span>
+                      </div>
 
-                    {/* Messages for this date */}
-                    {dateMessages.map((message) => (
-                      <div key={message.id} className="flex flex-col space-y-2 group">
-                        <div className={`flex items-start space-x-3 ${
-                          message.sender === user.name ? 'flex-row-reverse space-x-reverse' : ''
-                        }`}>
-                          {/* Avatar */}
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 ${
-                            message.sender === user.name 
-                              ? 'bg-gradient-to-r from-romantic-pink to-romantic-rose' 
-                              : 'bg-gradient-to-r from-romantic-gold to-amber-500'
+                      {/* Messages for this date */}
+                      {dateMessages.map((message) => (
+                        <div key={message.id} className="flex flex-col space-y-2 group">
+                          <div className={`flex items-start space-x-3 ${
+                            message.sender === user.name ? 'flex-row-reverse space-x-reverse' : ''
                           }`}>
-                            {message.sender === user.name ? user.name[0] : user.partnerName[0]}
-                          </div>
-                          
-                          {/* Message Bubble */}
-                          <div className={`flex-1 max-w-xs lg:max-w-md ${
-                            message.sender === user.name ? 'text-right' : 'text-left'
-                          }`}>
-                            <div className={`inline-block p-4 rounded-2xl ${
-                              message.sender === user.name
-                                ? 'bg-gradient-to-r from-romantic-pink to-romantic-rose text-white'
-                                : `${messageTypes[message.type].bgColor} ${messageTypes[message.type].borderColor} border text-gray-700`
+                            {/* Avatar */}
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 ${
+                              message.sender === user.name 
+                                ? 'bg-gradient-to-r from-romantic-pink to-romantic-rose' 
+                                : 'bg-gradient-to-r from-romantic-gold to-amber-500'
                             }`}>
-                              <p className="leading-relaxed whitespace-pre-wrap">
-                                {message.text}
-                              </p>
+                              {message.sender === user.name ? user.name[0] : user.partnerName[0]}
                             </div>
                             
-                            {/* Message Meta */}
-                            <div className={`flex items-center space-x-2 mt-1 text-xs ${
-                              message.sender === user.name ? 'justify-end' : 'justify-start'
+                            {/* Message Bubble */}
+                            <div className={`flex-1 max-w-xs lg:max-w-md ${
+                              message.sender === user.name ? 'text-right' : 'text-left'
                             }`}>
-                              <span className="text-gray-500">
-                                {formatTime(message.timestamp)}
-                              </span>
-                              <span className={`px-2 py-1 rounded-full ${
-                                message.sender === user.name 
-                                  ? 'bg-pink-200 text-romantic-pink' 
-                                  : `${messageTypes[message.type].bgColor} text-gray-600`
+                              <div className={`inline-block p-4 rounded-2xl ${
+                                message.sender === user.name
+                                  ? 'bg-gradient-to-r from-romantic-pink to-romantic-rose text-white'
+                                  : `${messageTypes[message.type].bgColor} ${messageTypes[message.type].borderColor} border text-gray-700`
                               }`}>
-                                {messageTypes[message.type].emoji} {messageTypes[message.type].label}
-                              </span>
+                                <p className="leading-relaxed whitespace-pre-wrap">
+                                  {message.text}
+                                </p>
+                              </div>
+                              
+                              {/* Message Meta */}
+                              <div className={`flex items-center space-x-2 mt-1 text-xs ${
+                                message.sender === user.name ? 'justify-end' : 'justify-start'
+                              }`}>
+                                <span className="text-gray-500">
+                                  {formatTime(message.timestamp)}
+                                </span>
+                                <span className={`px-2 py-1 rounded-full ${
+                                  message.sender === user.name 
+                                    ? 'bg-pink-200 text-romantic-pink' 
+                                    : `${messageTypes[message.type].bgColor} text-gray-600`
+                                }`}>
+                                  {messageTypes[message.type].emoji} {messageTypes[message.type].label}
+                                </span>
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Delete Button */}
-                          <button
-                            onClick={() => deleteMessage(message.id)}
-                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity p-1"
-                          >
-                            🗑️
-                          </button>
+                            {/* Delete Button */}
+                            <button
+                              onClick={() => deleteMessage(message.id)}
+                              className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity p-1"
+                            >
+                              🗑️
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                      ))}
+                    </div>
+                  ))
+                )}
                 <div ref={messagesEndRef} />
               </div>
 

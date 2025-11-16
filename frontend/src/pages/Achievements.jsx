@@ -2,63 +2,7 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 
 const Achievements = () => {
-  const [achievements, setAchievements] = useState([
-    {
-      id: 1,
-      title: 'First Anniversary',
-      description: 'Celebrated one year of beautiful love together with a romantic dinner and weekend getaway',
-      date: '2023-06-15',
-      type: 'achievement',
-      completed: true,
-      category: 'milestone'
-    },
-    {
-      id: 2,
-      title: 'Moved In Together',
-      description: 'Created our first home filled with love, laughter, and beautiful memories',
-      date: '2023-09-01',
-      type: 'achievement',
-      completed: true,
-      category: 'life'
-    },
-    {
-      id: 3,
-      title: 'First International Trip',
-      description: 'Explored Bali together and created unforgettable memories in paradise',
-      date: '2023-12-10',
-      type: 'achievement',
-      completed: true,
-      category: 'travel'
-    },
-    {
-      id: 4,
-      title: 'Buy Our Dream Home',
-      description: 'Find and purchase our perfect home with a garden and space for our future family',
-      date: '2025-12-31',
-      type: 'goal',
-      completed: false,
-      category: 'future'
-    },
-    {
-      id: 5,
-      title: 'European Adventure',
-      description: 'Backpack through Europe, visiting Paris, Rome, and the Greek islands',
-      date: '2024-09-01',
-      type: 'goal',
-      completed: false,
-      category: 'travel'
-    },
-    {
-      id: 6,
-      title: 'Learn to Dance Together',
-      description: 'Take salsa classes and surprise everyone at the next wedding we attend',
-      date: '2024-06-30',
-      type: 'goal',
-      completed: false,
-      category: 'fun'
-    }
-  ])
-
+  const [achievements, setAchievements] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -93,7 +37,7 @@ const Achievements = () => {
       } else {
         const newAchievement = {
           ...formData,
-          id: Math.max(...achievements.map(a => a.id)) + 1,
+          id: Date.now(),
           completed: formData.type === 'achievement'
         }
         setAchievements([newAchievement, ...achievements])
@@ -159,8 +103,10 @@ const Achievements = () => {
     completed: completedAchievements.length,
     inProgress: pendingGoals.length + currentAchievements.length,
     total: achievements.length,
-    completionRate: Math.round((completedAchievements.length / achievements.length) * 100)
+    completionRate: achievements.length > 0 ? Math.round((completedAchievements.length / achievements.length) * 100) : 0
   }
+
+  const hasAchievements = achievements.length > 0
 
   return (
     <div className="min-h-screen bg-romantic-cream py-8">
@@ -175,29 +121,31 @@ const Achievements = () => {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="card-romantic text-center">
-            <div className="text-2xl text-romantic-pink mb-2">🎯</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
-            <div className="text-sm text-gray-600">Total Goals</div>
+        {/* Stats - Only show when there are achievements */}
+        {hasAchievements && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="card-romantic text-center">
+              <div className="text-2xl text-romantic-pink mb-2">🎯</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
+              <div className="text-sm text-gray-600">Total Goals</div>
+            </div>
+            <div className="card-romantic text-center">
+              <div className="text-2xl text-green-500 mb-2">✅</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.completed}</div>
+              <div className="text-sm text-gray-600">Completed</div>
+            </div>
+            <div className="card-romantic text-center">
+              <div className="text-2xl text-blue-500 mb-2">🔄</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.inProgress}</div>
+              <div className="text-sm text-gray-600">In Progress</div>
+            </div>
+            <div className="card-romantic text-center">
+              <div className="text-2xl text-romantic-gold mb-2">📊</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.completionRate}%</div>
+              <div className="text-sm text-gray-600">Completion</div>
+            </div>
           </div>
-          <div className="card-romantic text-center">
-            <div className="text-2xl text-green-500 mb-2">✅</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.completed}</div>
-            <div className="text-sm text-gray-600">Completed</div>
-          </div>
-          <div className="card-romantic text-center">
-            <div className="text-2xl text-blue-500 mb-2">🔄</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.inProgress}</div>
-            <div className="text-sm text-gray-600">In Progress</div>
-          </div>
-          <div className="card-romantic text-center">
-            <div className="text-2xl text-romantic-gold mb-2">📊</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.completionRate}%</div>
-            <div className="text-sm text-gray-600">Completion</div>
-          </div>
-        </div>
+        )}
 
         {/* Add New Button */}
         <div className="text-center mb-8">
@@ -205,7 +153,7 @@ const Achievements = () => {
             onClick={() => setShowForm(true)}
             className="btn-primary text-lg px-8 py-4"
           >
-            + Add New Milestone or Goal
+            + Add Your First Goal
           </button>
         </div>
 
@@ -318,90 +266,46 @@ const Achievements = () => {
           </div>
         )}
 
-        {/* Achievements Grid */}
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Completed Achievements */}
-          <div>
-            <h2 className="font-playfair text-3xl text-gray-800 mb-6 flex items-center">
-              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
-                <span className="text-white text-lg">✓</span>
-              </div>
-              Milestones Achieved ({completedAchievements.length})
-            </h2>
-            <div className="space-y-4">
-              {completedAchievements.map((achievement) => (
-                <div key={achievement.id} className="card-romantic border-l-4 border-green-500 relative">
-                  <div className="absolute top-4 right-4 flex space-x-2">
-                    <button
-                      onClick={() => toggleCompletion(achievement)}
-                      className="text-green-500 hover:text-green-600 bg-green-50 p-1 rounded"
-                      title="Mark incomplete"
-                    >
-                      ✓
-                    </button>
-                    <button
-                      onClick={() => startEdit(achievement)}
-                      className="text-blue-500 hover:text-blue-600 bg-blue-50 p-1 rounded"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      onClick={() => deleteAchievement(achievement.id)}
-                      className="text-red-500 hover:text-red-600 bg-red-50 p-1 rounded"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-start space-x-3">
-                    <div className={`w-12 h-12 bg-gradient-to-r ${categories[achievement.category].color} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                      <span className="text-white text-lg">{categories[achievement.category].icon}</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-800 text-lg mb-1">
-                        {achievement.title}
-                      </h3>
-                      <p className="text-gray-600 mb-2 leading-relaxed">{achievement.description}</p>
-                      <div className="flex justify-between items-center text-sm text-gray-500">
-                        <span>{new Date(achievement.date).toLocaleDateString()}</span>
-                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                          Completed 🎉
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {completedAchievements.length === 0 && (
-                <div className="card-romantic text-center text-gray-500 py-12">
-                  <div className="text-5xl mb-4">🎯</div>
-                  <p className="text-lg mb-2">No completed achievements yet.</p>
-                  <p>Start checking off your beautiful goals!</p>
-                </div>
-              )}
-            </div>
+        {/* Empty State */}
+        {!hasAchievements && !showForm && (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🎯</div>
+            <h3 className="font-playfair text-2xl text-gray-600 mb-2">
+              Your journey begins here
+            </h3>
+            <p className="text-gray-500 max-w-md mx-auto mb-8">
+              Start building your love story by adding milestones, goals, and dreams you want to achieve together.
+            </p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="btn-primary"
+            >
+              Add Your First Goal
+            </button>
           </div>
+        )}
 
-          {/* Current Goals & Future Dreams */}
-          <div className="space-y-8">
-            {/* Current Goals */}
+        {/* Achievements Grid - Only show when there are achievements */}
+        {hasAchievements && (
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Completed Achievements */}
             <div>
               <h2 className="font-playfair text-3xl text-gray-800 mb-6 flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-r from-romantic-pink to-romantic-rose rounded-full flex items-center justify-center mr-3 shadow-lg">
-                  <span className="text-white text-lg">🎯</span>
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                  <span className="text-white text-lg">✓</span>
                 </div>
-                Current Goals ({pendingGoals.length})
+                Milestones Achieved ({completedAchievements.length})
               </h2>
               <div className="space-y-4">
-                {pendingGoals.map((achievement) => (
-                  <div key={achievement.id} className="card-romantic border-l-4 border-romantic-pink relative">
+                {completedAchievements.map((achievement) => (
+                  <div key={achievement.id} className="card-romantic border-l-4 border-green-500 relative">
                     <div className="absolute top-4 right-4 flex space-x-2">
                       <button
                         onClick={() => toggleCompletion(achievement)}
-                        className="text-gray-400 hover:text-green-500 bg-gray-50 p-1 rounded"
-                        title="Mark complete"
+                        className="text-green-500 hover:text-green-600 bg-green-50 p-1 rounded"
+                        title="Mark incomplete"
                       >
-                        ○
+                        ✓
                       </button>
                       <button
                         onClick={() => startEdit(achievement)}
@@ -427,57 +331,122 @@ const Achievements = () => {
                         </h3>
                         <p className="text-gray-600 mb-2 leading-relaxed">{achievement.description}</p>
                         <div className="flex justify-between items-center text-sm text-gray-500">
-                          <span>Target: {new Date(achievement.date).toLocaleDateString()}</span>
-                          <span className="bg-romantic-pink text-white px-2 py-1 rounded-full text-xs">
-                            In Progress
+                          <span>{new Date(achievement.date).toLocaleDateString()}</span>
+                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                            Completed 🎉
                           </span>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
-                {pendingGoals.length === 0 && (
-                  <div className="card-romantic text-center text-gray-500 py-12">
-                    <div className="text-5xl mb-4">🌟</div>
-                    <p className="text-lg mb-2">No current goals set.</p>
-                    <p>Dream big and add your future plans!</p>
+                {completedAchievements.length === 0 && (
+                  <div className="card-romantic text-center text-gray-500 py-8">
+                    <div className="text-4xl mb-2">🎯</div>
+                    <p>No completed achievements yet.</p>
+                    <p className="text-sm text-gray-400">Start checking off your beautiful goals!</p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Quick Add Common Goals */}
-            <div className="card-romantic">
-              <h3 className="font-playfair text-xl text-gray-800 mb-4">Quick Add Common Goals</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { title: 'Romantic Getaway', category: 'travel' },
-                  { title: 'Cook Together', category: 'fun' },
-                  { title: 'Learn Something New', category: 'fun' },
-                  { title: 'Home Project', category: 'life' }
-                ].map((goal, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setFormData({
-                        title: goal.title,
-                        description: `Our beautiful ${goal.title.toLowerCase()} goal`,
-                        type: 'goal',
-                        date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                        category: goal.category
-                      })
-                      setShowForm(true)
-                    }}
-                    className="p-3 text-left rounded-lg border-2 border-dashed border-gray-200 hover:border-romantic-pink hover:bg-pink-50 transition-all text-sm"
-                  >
-                    <div className="font-medium text-gray-800">{goal.title}</div>
-                    <div className="text-gray-500 text-xs">Add to goals</div>
-                  </button>
-                ))}
+            {/* Current Goals & Future Dreams */}
+            <div className="space-y-8">
+              {/* Current Goals */}
+              <div>
+                <h2 className="font-playfair text-3xl text-gray-800 mb-6 flex items-center">
+                  <div className="w-10 h-10 bg-gradient-to-r from-romantic-pink to-romantic-rose rounded-full flex items-center justify-center mr-3 shadow-lg">
+                    <span className="text-white text-lg">🎯</span>
+                  </div>
+                  Current Goals ({pendingGoals.length})
+                </h2>
+                <div className="space-y-4">
+                  {pendingGoals.map((achievement) => (
+                    <div key={achievement.id} className="card-romantic border-l-4 border-romantic-pink relative">
+                      <div className="absolute top-4 right-4 flex space-x-2">
+                        <button
+                          onClick={() => toggleCompletion(achievement)}
+                          className="text-gray-400 hover:text-green-500 bg-gray-50 p-1 rounded"
+                          title="Mark complete"
+                        >
+                          ○
+                        </button>
+                        <button
+                          onClick={() => startEdit(achievement)}
+                          className="text-blue-500 hover:text-blue-600 bg-blue-50 p-1 rounded"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => deleteAchievement(achievement.id)}
+                          className="text-red-500 hover:text-red-600 bg-red-50 p-1 rounded"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                      
+                      <div className="flex items-start space-x-3">
+                        <div className={`w-12 h-12 bg-gradient-to-r ${categories[achievement.category].color} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                          <span className="text-white text-lg">{categories[achievement.category].icon}</span>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-800 text-lg mb-1">
+                            {achievement.title}
+                          </h3>
+                          <p className="text-gray-600 mb-2 leading-relaxed">{achievement.description}</p>
+                          <div className="flex justify-between items-center text-sm text-gray-500">
+                            <span>Target: {new Date(achievement.date).toLocaleDateString()}</span>
+                            <span className="bg-romantic-pink text-white px-2 py-1 rounded-full text-xs">
+                              In Progress
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {pendingGoals.length === 0 && (
+                    <div className="card-romantic text-center text-gray-500 py-8">
+                      <div className="text-4xl mb-2">🌟</div>
+                      <p>No current goals set.</p>
+                      <p className="text-sm text-gray-400">Dream big and add your future plans!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Add Common Goals */}
+              <div className="card-romantic">
+                <h3 className="font-playfair text-xl text-gray-800 mb-4">Quick Add Common Goals</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { title: 'Romantic Getaway', category: 'travel' },
+                    { title: 'Cook Together', category: 'fun' },
+                    { title: 'Learn Something New', category: 'fun' },
+                    { title: 'Home Project', category: 'life' }
+                  ].map((goal, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setFormData({
+                          title: goal.title,
+                          description: `Our beautiful ${goal.title.toLowerCase()} goal`,
+                          type: 'goal',
+                          date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                          category: goal.category
+                        })
+                        setShowForm(true)
+                      }}
+                      className="p-3 text-left rounded-lg border-2 border-dashed border-gray-200 hover:border-romantic-pink hover:bg-pink-50 transition-all text-sm"
+                    >
+                      <div className="font-medium text-gray-800">{goal.title}</div>
+                      <div className="text-gray-500 text-xs">Add to goals</div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Motivation Quote */}
         <div className="text-center mt-12 p-6 bg-gradient-to-r from-romantic-gold to-amber-500 rounded-2xl text-white">

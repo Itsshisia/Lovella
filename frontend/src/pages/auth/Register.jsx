@@ -26,6 +26,16 @@ const Register = () => {
 
     // Mock registration for now
     setTimeout(() => {
+      // Save user data to localStorage
+      const userData = {
+        name: formData.name,
+        email: formData.email,
+        partnerName: formData.partnerName,
+        anniversaryDate: formData.anniversaryDate
+      }
+      localStorage.setItem('lovella_user', JSON.stringify(userData))
+      localStorage.setItem('token', 'mock_jwt_token_' + Date.now())
+      
       toast.success('Your love story begins now! 💫 Welcome to Lovella!')
       navigate('/dashboard')
       setLoading(false)
@@ -169,6 +179,13 @@ const Register = () => {
         <div className="mt-8 p-4 bg-pink-50 rounded-lg border border-pink-200 text-center">
           <p className="text-sm text-pink-700 italic">
             "The best thing to hold onto in life is each other." - Audrey Hepburn
+          </p>
+        </div>
+
+        {/* Demo Notice */}
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-xs text-blue-700 text-center">
+            <strong>Demo:</strong> This is a demonstration. Your data is stored locally in your browser.
           </p>
         </div>
       </div>

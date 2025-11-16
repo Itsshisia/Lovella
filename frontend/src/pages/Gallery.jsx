@@ -2,30 +2,7 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 
 const Gallery = () => {
-  const [images, setImages] = useState([
-    {
-      id: 1,
-      url: 'https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      caption: 'Our first vacation together in Bali 🌴',
-      date: '2023-12-15',
-      likes: 12
-    },
-    {
-      id: 2,
-      url: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      caption: 'Christmas morning cuddles 🎄',
-      date: '2023-12-25',
-      likes: 24
-    },
-    {
-      id: 3,
-      url: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      caption: 'Sunset beach walk holding hands 🌅',
-      date: '2024-01-05',
-      likes: 18
-    }
-  ])
-
+  const [images, setImages] = useState([])
   const [selectedFile, setSelectedFile] = useState(null)
   const [caption, setCaption] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -53,10 +30,10 @@ const Gallery = () => {
 
     setUploading(true)
 
-    // Mock upload
+    // Create object URL for preview (in real app, you'd upload to server)
     setTimeout(() => {
       const newImage = {
-        id: images.length + 1,
+        id: Date.now(),
         url: URL.createObjectURL(selectedFile),
         caption: caption || 'Our beautiful memory together 💕',
         date: new Date().toISOString().split('T')[0],
@@ -69,7 +46,7 @@ const Gallery = () => {
       document.getElementById('file-input').value = ''
       setUploading(false)
       toast.success('Memory uploaded successfully! Your love story grows 💫')
-    }, 2000)
+    }, 1000)
   }
 
   const startEdit = (image) => {
@@ -193,11 +170,17 @@ const Gallery = () => {
           <div className="text-center py-16">
             <div className="text-6xl mb-4">📸</div>
             <h3 className="font-playfair text-2xl text-gray-600 mb-2">
-              No memories yet
+              Your gallery is waiting for memories
             </h3>
-            <p className="text-gray-500 max-w-md mx-auto">
-              Your love story is waiting to be told! Start uploading your beautiful moments together.
+            <p className="text-gray-500 max-w-md mx-auto mb-8">
+              Upload your first photo together and start building your beautiful love story collection.
             </p>
+            <button
+              onClick={() => document.getElementById('file-input').click()}
+              className="btn-primary"
+            >
+              Upload Your First Memory
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -291,29 +274,31 @@ const Gallery = () => {
           </div>
         )}
 
-        {/* Memory Stats */}
-        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="card-romantic text-center">
-            <div className="text-2xl text-romantic-pink mb-2">📸</div>
-            <div className="text-2xl font-bold text-gray-800">{images.length}</div>
-            <div className="text-sm text-gray-600">Total Memories</div>
+        {/* Memory Stats - Only show when there are images */}
+        {images.length > 0 && (
+          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="card-romantic text-center">
+              <div className="text-2xl text-romantic-pink mb-2">📸</div>
+              <div className="text-2xl font-bold text-gray-800">{images.length}</div>
+              <div className="text-sm text-gray-600">Total Memories</div>
+            </div>
+            <div className="card-romantic text-center">
+              <div className="text-2xl text-romantic-pink mb-2">❤️</div>
+              <div className="text-2xl font-bold text-gray-800">{images.reduce((sum, img) => sum + img.likes, 0)}</div>
+              <div className="text-sm text-gray-600">Total Love</div>
+            </div>
+            <div className="card-romantic text-center">
+              <div className="text-2xl text-romantic-pink mb-2">⭐</div>
+              <div className="text-2xl font-bold text-gray-800">{images.filter(img => img.likes > 10).length}</div>
+              <div className="text-sm text-gray-600">Favorite Memories</div>
+            </div>
+            <div className="card-romantic text-center">
+              <div className="text-2xl text-romantic-pink mb-2">🎯</div>
+              <div className="text-2xl font-bold text-gray-800">{new Set(images.map(img => img.date.split('-')[0])).size}</div>
+              <div className="text-sm text-gray-600">Years Together</div>
+            </div>
           </div>
-          <div className="card-romantic text-center">
-            <div className="text-2xl text-romantic-pink mb-2">❤️</div>
-            <div className="text-2xl font-bold text-gray-800">{images.reduce((sum, img) => sum + img.likes, 0)}</div>
-            <div className="text-sm text-gray-600">Total Love</div>
-          </div>
-          <div className="card-romantic text-center">
-            <div className="text-2xl text-romantic-pink mb-2">⭐</div>
-            <div className="text-2xl font-bold text-gray-800">{images.filter(img => img.likes > 10).length}</div>
-            <div className="text-sm text-gray-600">Favorite Memories</div>
-          </div>
-          <div className="card-romantic text-center">
-            <div className="text-2xl text-romantic-pink mb-2">🎯</div>
-            <div className="text-2xl font-bold text-gray-800">{new Set(images.map(img => img.date.split('-')[0])).size}</div>
-            <div className="text-sm text-gray-600">Years Together</div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

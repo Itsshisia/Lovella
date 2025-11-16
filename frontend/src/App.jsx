@@ -12,7 +12,6 @@ import Achievements from './pages/Achievements'
 import Chat from './pages/Chat'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import MusicPlayer from './components/MusicPlayer'
 
 function App() {
   return (
@@ -45,7 +44,6 @@ function App() {
             },
           }}
         />
-        <MusicPlayer />
       </div>
     </Router>
   )

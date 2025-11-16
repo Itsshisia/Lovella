@@ -23,7 +23,26 @@ const Login = () => {
 
     // Mock login for now
     setTimeout(() => {
-      toast.success('Welcome back to your love story! 💕')
+      // Check if user exists in localStorage from registration
+      const existingUser = localStorage.getItem('lovella_user')
+      
+      if (existingUser) {
+        // User exists, use their actual data
+        const userData = JSON.parse(existingUser)
+        toast.success('Welcome back to your love story! 💕')
+      } else {
+        // For demo purposes, create a mock user
+        const userData = {
+          name: 'You',
+          email: formData.email,
+          partnerName: 'Your Partner',
+          anniversaryDate: new Date().toISOString().split('T')[0]
+        }
+        localStorage.setItem('lovella_user', JSON.stringify(userData))
+        toast.success('Welcome to Lovella! Your demo account is ready! 💫')
+      }
+      
+      localStorage.setItem('token', 'mock_jwt_token_' + Date.now())
       navigate('/dashboard')
       setLoading(false)
     }, 1500)
@@ -138,8 +157,26 @@ const Login = () => {
         {/* Demo Notice */}
         <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-sm text-blue-700 text-center">
-            <strong>Demo:</strong> Use any email and password to login
+            <strong>Demo Instructions:</strong><br />
+            • If you registered before, use any email/password to login<br />
+            • If it's your first time, you'll get a demo account<br />
+            • For the full experience, register first to set your couple details
           </p>
+        </div>
+
+        {/* Quick Demo Buttons */}
+        <div className="space-y-2">
+          <button
+            onClick={() => {
+              setFormData({
+                email: 'demo@lovella.com',
+                password: 'demo123'
+              })
+            }}
+            className="w-full py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+          >
+            Fill Demo Credentials
+          </button>
         </div>
       </div>
     </div>

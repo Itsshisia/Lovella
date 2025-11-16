@@ -1,17 +1,50 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  body {
+    @apply bg-romantic-cream;
+  }
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer components {
+  .btn-primary {
+    @apply bg-romantic-pink hover:bg-romantic-rose text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-romantic-gold hover:bg-amber-500 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 shadow-lg;
+  }
+  
+  .card-romantic {
+    @apply bg-white rounded-2xl shadow-xl p-6 border border-pink-100 hover:shadow-2xl transition-all duration-300;
+  }
+  
+  .input-romantic {
+    @apply w-full px-4 py-3 border border-pink-200 rounded-lg focus:ring-2 focus:ring-romantic-pink focus:border-transparent transition-all duration-300 text-gray-700;
+  }
 }
 
-#root {
-  min-height: 100vh;
+.heart-beat {
+  animation: heartBeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }

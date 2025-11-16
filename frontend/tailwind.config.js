@@ -9,7 +9,7 @@ export default {
       colors: {
         romantic: {
           pink: '#ec4899',
-          rose: '#f43f5e',
+          rose: '#f43f5e', 
           gold: '#f59e0b',
           cream: '#fff7ed',
           red: '#dc2626'
